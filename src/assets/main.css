@@ -125,7 +125,6 @@ header {
 .list {
   display: flex;
   flex-direction: column;
-  font-size: 2rem;
   list-style-type: none; /* Remove bullets */
   padding: 0px 0px 0px 0px; /* Remove padding */
   margin: 0; /* Remove margins */
@@ -134,14 +133,19 @@ header {
 
 .listelement {
   width: 100%;
-  padding-bottom: 2px;
+  font-size: 2rem;
+
+  transition: padding 0.4s
+}
+.listelement::-webkit-scrollbar {
+  display: none;
 }
 
 .listelement:hover {
-  padding-top: 2px;
-  padding-bottom: 0px;
   width: 100%;
+  padding-left:2rem;
   background-color: #cbfbc5;
+  overflow: scroll;
 }
 
 .flip-box {
