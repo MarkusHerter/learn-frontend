@@ -3,8 +3,8 @@ import { RouterView } from "vue-router";
 </script>
 <template>
   <div class="main_app">
-    <RouterView style="margin: auto" v-slot="{ Component }">
-      <Transition name="wait" mode="out-in">
+    <RouterView style="margin: auto" v-slot="{ Component, route }">
+      <Transition :name="'fade'" mode="out-in">
         <Component :is="Component" :key="$route.path"></Component>
       </Transition>
     </RouterView>

@@ -3,11 +3,19 @@ import type { Card } from "@/types";
 import BaseTemplate from "@/components/BaseTemplate.vue";
 import { activeBox } from "@/apicalls";
 import { ref, watch } from "vue";
+import { useSwipe } from "@vueuse/core";
+import { useRouter } from "vue-router";
 const front = ref(true);
 const right = 1;
 const wrong = 2;
 const newCards = ref(true);
+const el = ref();
+const { direction } = useSwipe(el);
+const router = useRouter();
 activeBox.deleteEmptyCards();
+watch(direction, () => {
+  if (direction.value === "LEFT") router.push({ name: "learnToHome" });
+});
 
 activeBox.shuffle();
 let activeCard = ref<Card | null>();
@@ -45,6 +53,7 @@ function nextCard(action: Number = 0) {
 </script>
 <template>
   <BaseTemplate
+    ref="el"
     iconSmall="carbon:home"
     :iconLeft="front ? 'carbon:microphone' : 'carbon:checkmark'"
     :iconRight="front ? 'carbon:skip-forward' : 'carbon:close'"

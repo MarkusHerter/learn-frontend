@@ -19,6 +19,12 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: "/",
+      name: "learnToHome",
+      component: HomeView,
+      meta: { transition: "slide-left" },
+    },
+    {
       path: "/select-edit",
       name: "select-edit",
       component: EditListView,
