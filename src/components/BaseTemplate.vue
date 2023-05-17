@@ -6,10 +6,9 @@ const props = defineProps({
   iconLeft: String,
   iconRight: String,
   linkSmall: String,
-  linkLeft: String,
-  linkRight: String,
   disabledLeft: Boolean,
   title: String,
+  subtitle: String,
 });
 const emits = defineEmits(["rightClick", "leftClick"]);
 </script>
@@ -27,37 +26,44 @@ const emits = defineEmits(["rightClick", "leftClick"]);
             style="color: #ffffff; width: 32px; height: 32px"
           /></button
       ></RouterLink>
-      <div class="title">{{ props.title }}</div>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          padding: 0.5rem;
+          align-items: center;
+          width: 100%;
+        "
+      >
+        <div class="title">{{ props.title }}</div>
+        <div class="title">{{ props.subtitle }}</div>
+      </div>
     </header>
     <div class="body">
       <slot name="card"></slot>
       <div class="button_panel">
-        <RouterLink :to="props.linkLeft || ''">
-          <button
-            class="bigButton"
-            :style="
-              disabledLeft ? 'background-color: #043B4D;box-shadow:none;' : ''
-            "
-            @click="
-              () => {
-                if (!disabledLeft) emits('leftClick', true);
-              }
-            "
-          >
-            <Icon
-              :icon="props.iconLeft"
-              style="color: #ffffff; width: 70px; height: 70px"
-            />
-          </button>
-        </RouterLink>
-        <RouterLink :to="props.linkRight || ''">
-          <button class="bigButton" @click="() => emits('rightClick', true)">
-            <Icon
-              :icon="props.iconRight"
-              style="color: #ffffff; width: 70px; height: 70px"
-            />
-          </button>
-        </RouterLink>
+        <button
+          class="bigButton"
+          :style="
+            disabledLeft ? 'background-color: #043B4D;box-shadow:none;' : ''
+          "
+          @click="
+            () => {
+              if (!disabledLeft) emits('leftClick', true);
+            }
+          "
+        >
+          <Icon
+            :icon="props.iconLeft"
+            style="color: #ffffff; width: 70px; height: 70px"
+          />
+        </button>
+        <button class="bigButton" @click="() => emits('rightClick', true)">
+          <Icon
+            :icon="props.iconRight"
+            style="color: #ffffff; width: 70px; height: 70px"
+          />
+        </button>
       </div>
     </div>
   </div>

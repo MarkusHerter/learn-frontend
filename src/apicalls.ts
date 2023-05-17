@@ -1,68 +1,161 @@
-import type { Box, Card } from "@/types";
-export const cardboxes = [
-  { id: 1, topic: "Spanisch" },
-  { id: 2, topic: "Englisch" },
-  { id: 3, topic: "Französisch" },
-  { id: 4, topic: "SQL" },
-  { id: 5, topic: "Die französische Revolution" },
-  { id: 6, topic: "IPv6" },
-  { id: 7, topic: "Der Hitler-Stalin-Pakt" },
-  { id: 8, topic: "Der Herr der Ringe" },
-  { id: 9, topic: "Schwimmen für Anfänger" },
-  { id: 10, topic: "Der Mann ohne Namen" },
-];
-export const activeBox: Box = {
-  id: 1,
-  topic: "Spanisch",
-  pairs: [
-    ["ich", "yo", 0, 0],
-    ["das Haus", "la casa", 0, 0],
-    ["der Baum", "el arbol", 0, 0],
-    ["die Reise", "el viaje", 0, 0],
-    // ["der Hund", "el perro", 0, 0],
-    // ["der Kater", "el gato", 0, 0],
-    // ["ich gehe", "voy", 0, 0],
-    // ["er weint", "llora", 0, 0],
-    // ["heißen", "llamar", 0, 0],
-  ],
-  getDays: [0, 1, 4, 10, 30, 30, 180],
-  oneDay: 86400000,
-  position: -1,
-  takeNextValidCard: function (): Card | null {
-    const start = this.position;
-    do {
-      this.position++;
-      if (this.position === this.pairs.length) this.position = 0;
-      if (
-        Date.now() - this.pairs[this.position][3] >=
-        this.oneDay * this.getDays[this.pairs[this.position][2]]
-      ) {
-        return this.pairs[this.position];
+import type { Card, ChosenBox, FetchedCard } from "@/types";
+import { chosenBox, chosenCard, isAuthenticated, token } from "./store";
+import { activeBox } from "@/objects";
+
+const url = import.meta.env.VITE_API_URL;
+
+export async function signup(name: string, email: string, password: string) {
+  let errorMessage: string | null;
+
+  try {
+    return await fetch(`${url}/signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: name, email: email, password: password }),
+    }).then((response) => {
+      if (!response.ok) {
+        errorMessage = "Signup failed.";
+        return { errorMessage: errorMessage };
+      } else {
+        response.json().then((response) => {
+          token.value = response.accessToken;
+        });
       }
-    } while (this.position !== start);
-    return null;
-  },
-  shuffle: function (): void {
-    for (let i = this.pairs.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
-      [this.pairs[i], this.pairs[j]] = [this.pairs[j], this.pairs[i]];
-    }
-  },
-  deleteEmptyCards: function (): void {
-    for (let i = 0; i <= this.pairs.length - 1; i++) {
-      if (this.pairs[i][0].trim() === "") this.pairs.splice(i);
-    }
-  },
-};
+    });
+  } catch (error) {
+    errorMessage = "An error occurred. Please try again.";
+    return { errorMessage: errorMessage };
+  }
+}
+export async function login(email: string, password: string) {
+  let errorMessage: string | null;
 
-/* Fach 0: Take it!
-Fach 1: 1 mal pro Tag, -> t[now] - t[last] >=1
-Fach 2: alle 4 Tage,  t[now] - t[last] >= 4
-Fach 3: nach zehn, t[now] - t[last] >= 10
-Fach 4: nach einem Monat t[now] - t[last] >= 30
-fach 5: nach einem Monat t[now] - t[last] >= 30
-fach 6: nach einem halben Jahr t[now] - t[last] >= 150
+  try {
+    return await fetch(`${url}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, password: password }),
+    }).then((response) => {
+      if (!response.ok) {
+        errorMessage = "Login failed. Please check your email and password.";
+        return { errorMessage: errorMessage };
+      } else {
+        response.json().then((response) => {
+          token.value = response.accessToken;
+        });
+      }
+    });
+  } catch (error) {
+    errorMessage = "An error occurred. Please try again.";
+    return { errorMessage: errorMessage };
+  }
+}
+export async function checkToken() {
+  isAuthenticated.value = await fetch(`${url}/checkToken`, {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + token.value,
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    if (!response.ok) {
+      return false;
+    } else {
+      return true;
+    }
+  });
+}
+export async function fetchCardboxes() {
+  return await fetch(`${url}/boxes`, {
+    headers: {
+      Authorization: "Bearer " + token.value,
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    return response.json();
+  });
+}
 
-wenn eine Aufgabe richtig beantwortet wurde, kommt sie in das nächste Fach, sonst kommt sie eins zurück
-1 tag = 1000*60*60*24
-*/
+export async function fetchCards(box: ChosenBox) {
+  const cards = await fetch(`${url}/cards?BoxId=` + box.id, {
+    headers: {
+      Authorization: "Bearer " + token.value,
+      "Content-Type": "application/json",
+    },
+  }).then(async (response) => {
+    const result = await response.json();
+    return result.map((item: FetchedCard) => {
+      return [item.front, item.back, item.pocket, item.lastTimePicked, item.id];
+    });
+  });
+  activeBox.id = box.id;
+  activeBox.topic = box.topic;
+  activeBox.pairs = cards;
+  return activeBox;
+}
+
+export async function changeProgress(card: Card) {
+  const payload = { cardId: card[4], pocket: card[2], lastTimePicked: card[3] };
+  return await fetch(`${url}/progress`, {
+    method: "PUT",
+    headers: {
+      Authorization: "Bearer " + token.value,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  }).then((response) => {
+    return response.json();
+  });
+}
+
+export async function updateCard() {
+  return await fetch(`${url}/cards`, {
+    method: "PUT",
+    headers: {
+      Authorization: "Bearer " + token.value,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      CardId: chosenCard.value[4],
+      front: chosenCard.value[0],
+      back: chosenCard.value[1],
+    }),
+  }).then(async (response) => {
+    if (!response.ok) {
+      return { answer: null, error: true };
+    }
+    const answer = await response.json();
+    changeProgress(chosenCard.value);
+    return { answer: answer, error: false };
+  });
+}
+
+export async function saveNewCard() {
+  return await fetch(`${url}/cards`, {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + token.value,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      boxId: chosenBox.value.id,
+      front: chosenCard.value[0],
+      back: chosenCard.value[1],
+    }),
+  }).then(async (response) => {
+    if (!response.ok) {
+      const answer = null;
+      const error = true;
+      return { answer, error };
+    }
+    const answer = await response.json();
+    chosenCard.value[4] = answer.id;
+    changeProgress(chosenCard.value);
+    const error = false;
+    return { answer, error };
+  });
+}

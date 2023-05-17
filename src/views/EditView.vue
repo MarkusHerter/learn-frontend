@@ -1,15 +1,26 @@
 <script setup lang="ts">
 import BaseTemplate from "@/components/BaseTemplate.vue";
-import { activeBox } from "@/apicalls";
 import { ref, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { chosenCard } from "@/store";
+import { updateCard, saveNewCard } from "@/apicalls";
 const router = useRouter();
-const props = defineProps<{ index: number }>();
-const front = ref<Boolean>();
-const textFront = ref<string>(activeBox.pairs[props.index][0]);
-const textBack = ref<string>(activeBox.pairs[props.index][1]);
+const front = ref<Boolean>(true);
+const textFront = ref<string>(chosenCard.value[0]);
+const textBack = ref<string>(chosenCard.value[1]);
 const frontText = ref();
 const backText = ref();
+const saveAndExit = async () => {
+  chosenCard.value[0] = textFront.value;
+  chosenCard.value[1] = textBack.value;
+  chosenCard.value[2] = 0;
+  chosenCard.value[3] = Date.now();
+  const { error } =
+    chosenCard.value[4] != null ? await updateCard() : await saveNewCard();
+  if (!error) {
+    router.push("/select-edit");
+  }
+};
 onMounted(() => {
   watch(front, () =>
     front.value ? frontText.value.focus() : backText.value.focus()
@@ -17,6 +28,7 @@ onMounted(() => {
   front.value = true;
 });
 </script>
+
 <template>
   <BaseTemplate
     iconSmall="carbon:arrow-left"
@@ -25,26 +37,11 @@ onMounted(() => {
     iconRight="carbon:undo"
     linkSmall="/select-edit"
     title="Edit"
-    @rightClick="
-      () => {
-        if (front) {
-          textFront = activeBox.pairs[props.index][0];
-          frontText.focus();
-        } else {
-          textBack = activeBox.pairs[props.index][1];
-          backText.focus();
-        }
-      }
-    "
-    @leftClick="
-      () => {
-        activeBox.pairs[props.index] = [textFront, textBack, 0, 0];
-        router.push('/select-edit');
-      }
-    "
+    @rightClick="() => (front = !front)"
+    @leftClick="saveAndExit()"
   >
     <template #card>
-      <div class="flip-box" @click="() => (front = !front)">
+      <div class="flip-box">
         <div
           class="flip-box-inner"
           :style="front ? '' : 'transform:rotateY(180deg)'"

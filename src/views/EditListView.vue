@@ -1,19 +1,29 @@
 <script setup lang="ts">
 import BaseTemplate from "@/components/BaseTemplate.vue";
-import { activeBox } from "@/apicalls";
-import { chosenBox } from "@/store";
-import { ref, computed, watch } from "vue";
+import { fetchCards } from "@/apicalls";
+import { chosenBox, chosenCard } from "@/store";
+import { ref, computed, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
-const chosenCard = ref<String>("");
+import type { Card, Box } from "@/types";
+
 const router = useRouter();
+const activeBox = ref<Box | null>();
 const searchterm = ref<string>("");
 const search = ref<Boolean>(false);
 const searchInput = ref();
+const fetching = ref<Boolean>(true);
 
-const chooseItem = (pair: String) => {
-  chosenCard.value = pair;
+async function fetchData() {
+  activeBox.value = await fetchCards(chosenBox.value);
+  activeBox.value.deleteEmptyCards();
+  fetching.value = false;
+}
+onMounted(fetchData);
+
+const chooseItem = (card: Card) => {
+  chosenCard.value = card;
   router.push({
-    path: `/edit/${activeBox.pairs.findIndex((item) => pair === item[0])}`,
+    path: "/edit",
   });
 };
 const toggleSearchInput = () => {
@@ -25,14 +35,12 @@ const toggleSearchInput = () => {
 };
 const shownCards = computed(() => {
   const re = new RegExp(searchterm.value, "i");
-  return searchterm.value && activeBox.pairs
-    ? activeBox.pairs.filter((item) =>
+  return searchterm.value && activeBox.value!.pairs
+    ? activeBox.value!.pairs.filter((item) =>
         item[0] ? item[0].search(re) !== -1 : false
       )
-    : activeBox.pairs;
+    : activeBox.value!.pairs;
 });
-
-activeBox.deleteEmptyCards();
 </script>
 <template>
   <BaseTemplate
@@ -40,17 +48,12 @@ activeBox.deleteEmptyCards();
     iconLeft="carbon:add"
     iconRight="heroicons:magnifying-glass-20-solid"
     linkSmall="/"
-    @leftClick="
-      () => {
-        activeBox.pairs.push(['', '', 0, 0]);
-        chooseItem('');
-      }
-    "
+    @leftClick="() => chooseItem(['', '', 0, 0, null])"
     @rightClick="toggleSearchInput"
     :title="`${chosenBox.topic ?? ''}`"
     ><template #card>
-      <div class="window">
-        <ul v-if="activeBox.id === chosenBox.id" class="list">
+      <div class="window" v-if="!fetching">
+        <ul v-if="!fetching" class="list">
           <li
             style="width: 100%; display: flex; justify-content: center"
             v-if="search"
@@ -63,14 +66,14 @@ activeBox.deleteEmptyCards();
             />
           </li>
           <li
-            v-for="(pair, index) in shownCards"
+            v-for="(card, index) in shownCards"
             :key="index"
             :class="index == 0 ? 'border-radius:20px 20px 0px 0px' : ''"
-            :style="pair[0] === chosenCard ? 'background-color:#cbfbc5' : ''"
+            :style="card[0] === chosenCard[0] ? 'background-color:#cbfbc5' : ''"
             class="listelement"
-            @click="() => chooseItem(pair[0])"
+            @click="() => chooseItem(card)"
           >
-            {{ pair[0] }}
+            {{ card[0] }}
           </li>
         </ul>
       </div>
