@@ -11,6 +11,10 @@ const password = ref("");
 const errorMessage = ref("");
 const hidden = ref<boolean>(true);
 
+const navigateToSignup = () => {
+  router.push("/signup");
+};
+
 const handleSubmit = async () => {
   const response = await login(email.value, password.value);
   if (response?.errorMessage) {
@@ -100,7 +104,7 @@ const handleSubmit = async () => {
           </button>
           <button
             type="button"
-            @click="() => router.push('/signup')"
+            @click="navigateToSignup"
             style="
               margin: 1rem 0 1rem 1rem;
               color: var(--color-text);
@@ -108,7 +112,7 @@ const handleSubmit = async () => {
             "
             class="smallButton"
           >
-            Signup
+            > Signup
           </button>
         </div>
       </form>

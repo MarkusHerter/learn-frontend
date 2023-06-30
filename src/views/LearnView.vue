@@ -98,11 +98,8 @@ function listenToSpeech() {
         : '0'
     "
     @rightClick="front ? nextCard() : nextCard(wrong)"
-    <!--
     @leftClick="front ? listenToSpeech() : nextCard(right)"
-    --
   >
-    >
     <template #card>
       <div class="flip-box" @click="() => (newCards ? (front = !front) : '')">
         <div

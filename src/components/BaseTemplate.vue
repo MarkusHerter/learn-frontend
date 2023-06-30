@@ -2,10 +2,10 @@
 import { RouterLink } from "vue-router";
 import { Icon } from "@iconify/vue";
 const props = defineProps({
-  iconSmall: String,
-  iconLeft: String,
-  iconRight: String,
-  linkSmall: String,
+  iconSmall: { type: String, required: true },
+  iconLeft: { type: String, required: true },
+  iconRight: { type: String, required: true },
+  linkSmall: { type: String, required: true },
   disabledLeft: Boolean,
   title: String,
   subtitle: String,

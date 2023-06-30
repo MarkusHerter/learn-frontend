@@ -5,7 +5,7 @@ import { chosenBox } from "@/store";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
-const cardboxes = ref(null);
+const cardboxes = ref<null | Array<{ id: number; name: string }>>(null);
 const fetchData = async () => {
   cardboxes.value = await fetchCardboxes();
 };
