@@ -70,19 +70,19 @@ function nextCard(action: Number = 0) {
   changeProgress(activeBoxIn.value.pairs![activeBoxIn.value.position]);
   activeBoxIn.value.pairs![activeBox.value.position][3] = Date.now();
 }
-// function listenToSpeech() {
-//   spokenText.toggleSpeechRecognition();
-//   if (!spokenText.isListening) {
-//     front.value = !front.value;
-//     setTimeout(() => {
-//       if (spokenText.correctAnswer) {
-//         nextCard(right);
-//       } else {
-//         nextCard(wrong);
-//       }
-//     }, 2000);
-//   }
-// }
+function listenToSpeech() {
+  //   spokenText.toggleSpeechRecognition();
+  //   if (!spokenText.isListening) {
+  //     front.value = !front.value;
+  //     setTimeout(() => {
+  //       if (spokenText.correctAnswer) {
+  //         nextCard(right);
+  //       } else {
+  //         nextCard(wrong);
+  //       }
+  //     }, 2000);
+  //   }
+}
 </script>
 <template>
   <BaseTemplate
