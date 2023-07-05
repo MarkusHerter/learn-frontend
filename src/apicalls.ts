@@ -30,6 +30,9 @@ export async function signup(name: string, email: string, password: string) {
   }
 }
 export async function login(email: string, password: string) {
+  function wait(milliseconds: number) {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  }
   let errorMessage: string | null;
 
   try {
@@ -39,14 +42,13 @@ export async function login(email: string, password: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email: email, password: password }),
-    }).then((response) => {
+    }).then(async (response) => {
       if (!response.ok) {
         errorMessage = "Login failed. Please check your email and password.";
         return { errorMessage: errorMessage };
       } else {
-        response.json().then((response) => {
-          token.value = response.accessToken;
-        });
+        const responseJson = await response.json();
+        token.value = responseJson.accessToken;
       }
     });
   } catch (error) {
@@ -142,7 +144,7 @@ export async function saveNewCard() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      boxId: chosenBox.value.id,
+      BoxId: chosenBox.value.id,
       front: chosenCard.value[0],
       back: chosenCard.value[1],
     }),

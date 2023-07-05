@@ -6,7 +6,7 @@ import { ref, watch, onMounted } from "vue";
 import { useSwipe } from "@vueuse/core";
 import { useRouter } from "vue-router";
 import { chosenBox } from "@/store";
-import { spokenText } from "@/spokenText";
+// import { spokenText } from "@/spokenText";
 
 const activeBox = ref<Box | null>(null);
 const front = ref(true);
@@ -16,7 +16,7 @@ const newCards = ref(true);
 const el = ref();
 const { direction } = useSwipe(el);
 const router = useRouter();
-spokenText.init();
+// spokenText.init();
 
 async function fetchData() {
   activeBox.value = await fetchCards(chosenBox.value);
@@ -70,19 +70,19 @@ function nextCard(action: Number = 0) {
   changeProgress(activeBoxIn.value.pairs![activeBoxIn.value.position]);
   activeBoxIn.value.pairs![activeBox.value.position][3] = Date.now();
 }
-function listenToSpeech() {
-  spokenText.toggleSpeechRecognition();
-  if (!spokenText.isListening) {
-    front.value = !front.value;
-    setTimeout(() => {
-      if (spokenText.correctAnswer) {
-        nextCard(right);
-      } else {
-        nextCard(wrong);
-      }
-    }, 2000);
-  }
-}
+// function listenToSpeech() {
+//   spokenText.toggleSpeechRecognition();
+//   if (!spokenText.isListening) {
+//     front.value = !front.value;
+//     setTimeout(() => {
+//       if (spokenText.correctAnswer) {
+//         nextCard(right);
+//       } else {
+//         nextCard(wrong);
+//       }
+//     }, 2000);
+//   }
+// }
 </script>
 <template>
   <BaseTemplate
