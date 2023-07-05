@@ -30,9 +30,6 @@ export async function signup(name: string, email: string, password: string) {
   }
 }
 export async function login(email: string, password: string) {
-  function wait(milliseconds: number) {
-    return new Promise((resolve) => setTimeout(resolve, milliseconds));
-  }
   let errorMessage: string | null;
 
   try {

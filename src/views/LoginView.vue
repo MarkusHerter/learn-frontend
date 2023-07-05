@@ -112,7 +112,7 @@ const handleSubmit = async () => {
             "
             class="smallButton"
           >
-            > Signup
+            Signup
           </button>
         </div>
       </form>
