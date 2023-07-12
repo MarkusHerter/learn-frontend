@@ -35,7 +35,7 @@ const handleSubmit = async () => {
         padding-top: 10vh;
       "
     >
-      <h1 style="font-size: 3rem; margin-bottom: 5rem; text-align: center">
+      <h1 style="font-size: 7vh; margin-bottom: 5rem; text-align: center">
         Markus' supertolle Lernboxenbox
       </h1>
       <h2 style="font-size: 2rem">Login</h2>
