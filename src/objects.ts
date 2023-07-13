@@ -44,7 +44,7 @@ export const activeBox: Box = {
       [this.pairs[i], this.pairs[j]] = [this.pairs[j], this.pairs[i]];
     }
     this.pairs.sort((a, b) =>
-      a[2] < b[2] ? 1 : a[2] > b[2] ? -1 : a[3] == 0 ? 1 : 0
+      a[2] < b[2] ? 1 : a[2] > b[2] ? -1 : a[3] == null ? 1 : 0
     );
     console.log(JSON.stringify(this.pairs));
   },
