@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 16
       - name: Create .env file
-        run: echo BACKEND_IP=${{ secrets.BACKEND_IP }} >> .env
+        run: echo ${{ secrets.BACKEND_IP }} >> .env
 
 
       - name: Install Dependencies
