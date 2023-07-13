@@ -9,25 +9,41 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      HOST: ${{ secrets.HOST }}
+      USERNAME: ${{ secrets.USERNAME }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      PROJECT_PATH: /path/to/your/project
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build
-        run: npm run build
-      - name: Deploy to Server
+      - name: Copy repository to server
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          source: "dist/*"
-          target: "/var/www/html/"
+          host: ${{ env.HOST }}
+          username: ${{ env.USERNAME }}
+          key: ${{ env.SSH_KEY }}
+          source: "."
+          target: ${{ env.PROJECT_PATH }}
+
+      - name: Install dependencies and build on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.HOST }}
+          username: ${{ env.USERNAME }}
+          key: ${{ env.SSH_KEY }}
+          script: |
+            cd ${{ env.PROJECT_PATH }}
+            npm install
+            npm run build
+
+      - name: Move build to target directory
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.HOST }}
+          username: ${{ env.USERNAME }}
+          key: ${{ env.SSH_KEY }}
+          script: |
+            cp -r ${{ env.PROJECT_PATH }}/dist/* /var/www/html/
